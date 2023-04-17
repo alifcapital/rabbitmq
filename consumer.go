@@ -2,8 +2,9 @@ package rabbitmq
 
 import (
 	"context"
-	amqp "github.com/rabbitmq/amqp091-go"
 	"log"
+
+	amqp "github.com/rabbitmq/amqp091-go"
 )
 
 // An IConsumer handles an amqp message (delivery - in terms of github.com/rabbitmq/amqp091-go library).

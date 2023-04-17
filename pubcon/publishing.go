@@ -4,13 +4,14 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"time"
+
 	"github.com/alifcapital/rabbitmq"
 	"github.com/google/uuid"
 	"github.com/opentracing/opentracing-go"
 	"github.com/opentracing/opentracing-go/ext"
 	"github.com/opentracing/opentracing-go/log"
 	amqp "github.com/rabbitmq/amqp091-go"
-	"time"
 )
 
 type Publisher struct {

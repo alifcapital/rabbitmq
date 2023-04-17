@@ -2,9 +2,10 @@ package rabbitmq
 
 import (
 	"context"
-	amqp "github.com/rabbitmq/amqp091-go"
 	"sync"
 	"time"
+
+	amqp "github.com/rabbitmq/amqp091-go"
 )
 
 type ClientConfig struct {
