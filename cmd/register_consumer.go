@@ -2,7 +2,7 @@ package main
 
 import (
 	"context"
-	"github.com/komron-m/rabbitmq"
+	"github.com/alifcapital/rabbitmq"
 	amqp "github.com/rabbitmq/amqp091-go"
 	"log"
 )

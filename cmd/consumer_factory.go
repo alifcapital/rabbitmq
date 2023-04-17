@@ -1,8 +1,8 @@
 package main
 
 import (
+	"github.com/alifcapital/rabbitmq"
 	"github.com/google/uuid"
-	"github.com/komron-m/rabbitmq"
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
