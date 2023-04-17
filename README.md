@@ -12,7 +12,7 @@ project in `cmd` directory. Otherwise, start learning here: https://www.rabbitmq
 ### Install
 
 ```shell
-go get -u github.com/komron-m/rabbitmq
+go get -u github.com/alifcapital/rabbitmq
 ```
 
 ### Contributing
