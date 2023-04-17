@@ -1,4 +1,4 @@
-module github.com/komron-m/rabbitmq
+module github.com/alifcapital/rabbitmq
 
 go 1.19
 
