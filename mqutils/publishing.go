@@ -1,4 +1,4 @@
-package pubcon
+package mqutils
 
 import (
 	"context"
