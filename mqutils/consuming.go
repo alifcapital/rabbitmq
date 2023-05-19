@@ -16,6 +16,8 @@ const opentracingData = "opentracing_data"
 
 type ConsumerMiddleware func(next rabbitmq.IConsumer) rabbitmq.IConsumer
 
+// PanicRecoveryCallback define what to do when consumer panics
+// Ack or Nack of the message depends on context and left for implementation
 type PanicRecoveryCallback func(ctx context.Context, msg amqp.Delivery, recErr any)
 
 func ConsumerPanicRecovery(cb PanicRecoveryCallback) ConsumerMiddleware {
