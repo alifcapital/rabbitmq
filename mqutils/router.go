@@ -46,6 +46,14 @@ func (r *Router) RegisterEventHandler(eventName string, handler Handler, middlew
 	r.eventConsumers[eventName] = consumer
 }
 
+func (r *Router) GetEventNames() []string {
+	var names []string
+	for k, _ := range r.eventConsumers {
+		names = append(names, k)
+	}
+	return names
+}
+
 func (r *Router) Consume(ctx context.Context, msg amqp.Delivery) {
 	eventConsumer, ok := r.eventConsumers[msg.RoutingKey]
 	if !ok {
