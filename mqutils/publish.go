@@ -19,11 +19,12 @@ func Publish(ctx context.Context, exchange, key string, v any, client *rabbitmq.
 	span, newCtx := opentracing.StartSpanFromContext(ctx, spanName)
 	defer span.Finish()
 
-	msg, err := NewMessage(uuid.NewString(), v)
+	body, err := marshal(v)
 	if err != nil {
-		ext.LogError(span, err)
 		return err
 	}
+
+	msg := NewMessage(uuid.NewString(), body)
 
 	span.LogFields(log.String("message_id", msg.MessageId))
 
@@ -72,12 +73,8 @@ func PublishMsg(ctx context.Context, exchange, key string, msg amqp.Publishing, 
 	return nil
 }
 
-func NewMessage(id string, ptr any) (amqp.Publishing, error) {
-	body, err := marshal(ptr)
-	if err != nil {
-		return amqp.Publishing{}, err
-	}
-
+// NewMessage assumes body to be json, for other formats write own factory function
+func NewMessage(id string, body []byte) amqp.Publishing {
 	contentType := "text/json"
 	contentEncoding := "utf-8"
 
@@ -90,7 +87,7 @@ func NewMessage(id string, ptr any) (amqp.Publishing, error) {
 		DeliveryMode:    amqp.Persistent,
 		Priority:        0,
 		Body:            body,
-	}, nil
+	}
 }
 
 func marshal(v any) ([]byte, error) {
