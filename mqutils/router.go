@@ -23,7 +23,7 @@ type Router struct {
 	globalMiddlewares []ConsumerMiddleware
 }
 
-func NewConsumer(errorHandler ErrorHandler) *Router {
+func NewRouter(errorHandler ErrorHandler) *Router {
 	return &Router{
 		errorHandler:      errorHandler,
 		eventConsumers:    make(map[string]rabbitmq.IConsumer),
