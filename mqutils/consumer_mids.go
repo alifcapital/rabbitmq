@@ -20,7 +20,7 @@ type ConsumerMiddleware func(next rabbitmq.IConsumer) rabbitmq.IConsumer
 // Ack or Nack of the message depends on context and left for implementation
 type PanicRecoveryCallback func(ctx context.Context, msg amqp.Delivery, recErr any)
 
-func ConsumerPanicRecovery(cb PanicRecoveryCallback) ConsumerMiddleware {
+func ConsumerPanicRecoveryMiddleware(cb PanicRecoveryCallback) ConsumerMiddleware {
 	return func(next rabbitmq.IConsumer) rabbitmq.IConsumer {
 		return rabbitmq.ConsumerFunc(func(ctx context.Context, msg amqp.Delivery) {
 			defer func() {
@@ -35,7 +35,7 @@ func ConsumerPanicRecovery(cb PanicRecoveryCallback) ConsumerMiddleware {
 	}
 }
 
-func ConsumerTracer() ConsumerMiddleware {
+func ConsumerTracerMiddleware() ConsumerMiddleware {
 	return func(next rabbitmq.IConsumer) rabbitmq.IConsumer {
 		return rabbitmq.ConsumerFunc(func(ctx context.Context, msg amqp.Delivery) {
 			var span opentracing.Span
@@ -64,16 +64,4 @@ func ConsumerTracer() ConsumerMiddleware {
 			next.Consume(tracerCtx, msg)
 		})
 	}
-}
-
-func CombineConsumerMiddlewares(consumer rabbitmq.IConsumer, mids ...ConsumerMiddleware) rabbitmq.IConsumer {
-	midsLen := len(mids)
-	if midsLen == 0 {
-		return consumer
-	}
-	firstChain := consumer
-	for i := midsLen; i > 0; i-- {
-		firstChain = mids[i-1](firstChain)
-	}
-	return firstChain
 }
