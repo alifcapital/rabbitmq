@@ -14,6 +14,8 @@ type ExchangeParams struct {
 	Internal   bool
 	Nowait     bool
 	Args       amqp.Table
+	// custom flag
+	DeclareExchange bool
 }
 
 type QueueParams struct {

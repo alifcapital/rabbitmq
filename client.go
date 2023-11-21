@@ -137,16 +137,18 @@ func (c *Client) Consume(consumer AMQPConsumer) error {
 }
 
 func (c *Client) consume(consumer AMQPConsumer) error {
-	if err := c.consumerChan.ExchangeDeclare(
-		consumer.ExchangeParams.Name,
-		consumer.ExchangeParams.Type,
-		consumer.ExchangeParams.Durable,
-		consumer.ExchangeParams.AutoDelete,
-		consumer.ExchangeParams.Internal,
-		consumer.ExchangeParams.Nowait,
-		consumer.ExchangeParams.Args,
-	); err != nil {
-		return err
+	if consumer.DeclareExchange {
+		if err := c.consumerChan.ExchangeDeclare(
+			consumer.ExchangeParams.Name,
+			consumer.ExchangeParams.Type,
+			consumer.ExchangeParams.Durable,
+			consumer.ExchangeParams.AutoDelete,
+			consumer.ExchangeParams.Internal,
+			consumer.ExchangeParams.Nowait,
+			consumer.ExchangeParams.Args,
+		); err != nil {
+			return err
+		}
 	}
 
 	queue, err := c.consumerChan.QueueDeclare(
