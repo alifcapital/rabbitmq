@@ -39,7 +39,15 @@ func main() {
 			Args:       nil,
 		},
 		QueueBindParams: rabbitmq.QueueBindParams{},
-		ConsumerParams:  rabbitmq.ConsumerParams{},
+		ConsumerParams: rabbitmq.ConsumerParams{
+			RoutingKeys: []string{"event_1"},
+			ConsumerID:  "consumer_1",
+			AutoAck:     false,
+			Exclusive:   false,
+			NoLocal:     false,
+			Nowait:      false,
+			Args:        nil,
+		},
 		IConsumer: rabbitmq.ConsumerFunc(func(ctx context.Context, msg amqp.Delivery) {
 			defer msg.Ack(false)
 
