@@ -18,14 +18,16 @@ type Handler func(ctx context.Context, msg amqp.Delivery) error
 type ErrorHandler func(ctx context.Context, msg amqp.Delivery, err error) bool
 
 type Router struct {
-	errorHandler   ErrorHandler
-	eventConsumers map[string]rabbitmq.IConsumer
+	errorHandler      ErrorHandler
+	eventConsumers    map[string]rabbitmq.IConsumer
+	globalMiddlewares []ConsumerMiddleware
 }
 
-func NewRouter(errorHandler ErrorHandler) *Router {
+func NewRouter(errorHandler ErrorHandler, mids ...ConsumerMiddleware) *Router {
 	return &Router{
-		errorHandler:   errorHandler,
-		eventConsumers: make(map[string]rabbitmq.IConsumer),
+		errorHandler:      errorHandler,
+		eventConsumers:    make(map[string]rabbitmq.IConsumer),
+		globalMiddlewares: append([]ConsumerMiddleware{}, mids...),
 	}
 }
 
@@ -49,18 +51,19 @@ func (r *Router) Consume(ctx context.Context, msg amqp.Delivery) {
 }
 
 func (r *Router) RegisterEventHandler(eventName string, handler Handler, middlewares ...ConsumerMiddleware) {
-	consumer := r.makeConsumer(handler)
+	mids := append(r.globalMiddlewares, middlewares...)
 
-	if len(middlewares) > 0 {
-		consumer = combineConsumerMiddlewares(consumer, middlewares...)
-	}
+	consumer := combineConsumerMiddlewares(
+		r.makeConsumer(handler),
+		mids...,
+	)
 
 	r.eventConsumers[eventName] = consumer
 }
 
 func (r *Router) GetEventNames() []string {
 	var names []string
-	for k, _ := range r.eventConsumers {
+	for k := range r.eventConsumers {
 		names = append(names, k)
 	}
 	return names
