@@ -12,18 +12,16 @@ import (
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
-const opentracingData = "opentracing_data"
-
 type ConsumerMiddleware func(next rabbitmq.IConsumer) rabbitmq.IConsumer
 
-// PanicRecoveryCallback define what to do when consumer panics
-// Ack or Nack of the message depends on context and left for implementation
 type PanicRecoveryCallback func(ctx context.Context, msg amqp.Delivery, recErr any)
 
 func ConsumerPanicRecoveryMiddleware(cb PanicRecoveryCallback) ConsumerMiddleware {
 	return func(next rabbitmq.IConsumer) rabbitmq.IConsumer {
 		return rabbitmq.ConsumerFunc(func(ctx context.Context, msg amqp.Delivery) {
 			defer func() {
+				_ = msg.Nack(false, false)
+
 				if recErr := recover(); recErr != nil {
 					if cb != nil {
 						cb(ctx, msg, recErr)
@@ -59,7 +57,6 @@ func ConsumerTracerMiddleware() ConsumerMiddleware {
 			defer span.Finish()
 
 			span.LogFields(log.String("message_id", msg.MessageId))
-			span.LogFields(log.Int("priority", int(msg.Priority)))
 
 			next.Consume(tracerCtx, msg)
 		})
