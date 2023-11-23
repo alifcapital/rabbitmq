@@ -29,7 +29,7 @@ func (p *Pool) Set(clientName string, client *rabbitmq.Client) {
 	p.rw.Lock()
 	defer p.rw.Unlock()
 
-	p.container[clientName] = obj
+	p.container[clientName] = client
 }
 
 func (p *Pool) Close() error {
