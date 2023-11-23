@@ -25,7 +25,7 @@ func (p *Pool) Get(clientName string) (*rabbitmq.Client, bool) {
 	return client, ok
 }
 
-func (p *Pool) Set(clientName string, obj *rabbitmq.Client) {
+func (p *Pool) Set(clientName string, client *rabbitmq.Client) {
 	p.rw.Lock()
 	defer p.rw.Unlock()
 
