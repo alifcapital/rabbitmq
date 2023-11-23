@@ -20,6 +20,15 @@ func NewPool() *Pool {
 	}
 }
 
+func (p *Pool) Register(cfg rabbitmq.ClientConfig) error {
+	client, err := rabbitmq.NewClient(cfg)
+	if err != nil {
+		return err
+	}
+	p.Set(cfg.DialConfig.AMQPConfig.Vhost, client)
+	return nil
+}
+
 func (p *Pool) Get(clientName string) (*rabbitmq.Client, bool) {
 	client, ok := p.container[clientName]
 	return client, ok
