@@ -6,6 +6,15 @@ package rabbitmq
 
 import amqp "github.com/rabbitmq/amqp091-go"
 
+type AMQPConsumer struct {
+	ExchangeParams
+	QueueParams
+	QueueBindParams
+	ConsumerParams
+
+	IConsumer
+}
+
 type ExchangeParams struct {
 	Name       string
 	Type       string
@@ -40,13 +49,4 @@ type ConsumerParams struct {
 	NoLocal     bool
 	Nowait      bool
 	Args        amqp.Table
-}
-
-type AMQPConsumer struct {
-	ExchangeParams
-	QueueParams
-	QueueBindParams
-	ConsumerParams
-
-	IConsumer
 }
