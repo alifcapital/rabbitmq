@@ -20,13 +20,13 @@ func NewPool() *Pool {
 	}
 }
 
-func (p *Pool) Register(cfg rabbitmq.ClientConfig) error {
+func (p *Pool) Register(cfg rabbitmq.ClientConfig) (*rabbitmq.Client, error) {
 	client, err := rabbitmq.NewClient(cfg)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	p.Set(cfg.DialConfig.AMQPConfig.Vhost, client)
-	return nil
+	return client, nil
 }
 
 func (p *Pool) Get(clientName string) (*rabbitmq.Client, bool) {
