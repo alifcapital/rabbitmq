@@ -21,6 +21,11 @@ func NewPool() *Pool {
 }
 
 func (p *Pool) Register(cfg rabbitmq.ClientConfig) (*rabbitmq.Client, error) {
+	client, exists := p.Get(cfg.DialConfig.AMQPConfig.Vhost)
+	if exists {
+		return client, nil
+	}
+
 	client, err := rabbitmq.NewClient(cfg)
 	if err != nil {
 		return nil, err
@@ -30,6 +35,9 @@ func (p *Pool) Register(cfg rabbitmq.ClientConfig) (*rabbitmq.Client, error) {
 }
 
 func (p *Pool) Get(clientName string) (*rabbitmq.Client, bool) {
+	p.rw.Lock()
+	defer p.rw.Unlock()
+
 	client, ok := p.container[clientName]
 	return client, ok
 }
