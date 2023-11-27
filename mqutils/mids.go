@@ -12,16 +12,14 @@ import (
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
-type ConsumerMiddleware func(next rabbitmq.IConsumer) rabbitmq.IConsumer
+type Middleware func(next rabbitmq.IConsumer) rabbitmq.IConsumer
 
 type PanicRecoveryCallback func(ctx context.Context, msg amqp.Delivery, recErr any)
 
-func ConsumerPanicRecoveryMiddleware(cb PanicRecoveryCallback) ConsumerMiddleware {
+func NewPanicRecoveryMiddleware(cb PanicRecoveryCallback) Middleware {
 	return func(next rabbitmq.IConsumer) rabbitmq.IConsumer {
 		return rabbitmq.ConsumerFunc(func(ctx context.Context, msg amqp.Delivery) {
 			defer func() {
-				_ = msg.Nack(false, false)
-
 				if recErr := recover(); recErr != nil {
 					if cb != nil {
 						cb(ctx, msg, recErr)
@@ -33,7 +31,7 @@ func ConsumerPanicRecoveryMiddleware(cb PanicRecoveryCallback) ConsumerMiddlewar
 	}
 }
 
-func ConsumerTracerMiddleware() ConsumerMiddleware {
+func NewTracerMiddleware() Middleware {
 	return func(next rabbitmq.IConsumer) rabbitmq.IConsumer {
 		return rabbitmq.ConsumerFunc(func(ctx context.Context, msg amqp.Delivery) {
 			var span opentracing.Span

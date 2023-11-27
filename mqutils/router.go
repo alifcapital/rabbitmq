@@ -20,14 +20,14 @@ type ErrorHandler func(ctx context.Context, msg amqp.Delivery, err error) bool
 type Router struct {
 	errorHandler      ErrorHandler
 	eventConsumers    map[string]rabbitmq.IConsumer
-	globalMiddlewares []ConsumerMiddleware
+	globalMiddlewares []Middleware
 }
 
-func NewRouter(errorHandler ErrorHandler, mids ...ConsumerMiddleware) *Router {
+func NewRouter(errorHandler ErrorHandler, mids ...Middleware) *Router {
 	return &Router{
 		errorHandler:      errorHandler,
 		eventConsumers:    make(map[string]rabbitmq.IConsumer),
-		globalMiddlewares: append([]ConsumerMiddleware{}, mids...),
+		globalMiddlewares: append([]Middleware{}, mids...),
 	}
 }
 
@@ -50,7 +50,7 @@ func (r *Router) Consume(ctx context.Context, msg amqp.Delivery) {
 	eventConsumer.Consume(ctx, msg)
 }
 
-func (r *Router) RegisterEventHandler(eventName string, handler Handler, middlewares ...ConsumerMiddleware) {
+func (r *Router) RegisterEventHandler(eventName string, handler Handler, middlewares ...Middleware) {
 	mids := append(r.globalMiddlewares, middlewares...)
 
 	consumer := combineConsumerMiddlewares(
@@ -90,7 +90,7 @@ func (r *Router) makeConsumer(handler Handler) rabbitmq.IConsumer {
 	})
 }
 
-func combineConsumerMiddlewares(consumer rabbitmq.IConsumer, mids ...ConsumerMiddleware) rabbitmq.IConsumer {
+func combineConsumerMiddlewares(consumer rabbitmq.IConsumer, mids ...Middleware) rabbitmq.IConsumer {
 	midsLen := len(mids)
 	if midsLen == 0 {
 		return consumer
