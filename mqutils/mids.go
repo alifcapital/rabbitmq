@@ -60,3 +60,18 @@ func NewTracerMiddleware() Middleware {
 		})
 	}
 }
+
+// NewConsumerTraceLoggerMid example of Middleware which logs a message into traces
+func NewConsumerTraceLoggerMid() Middleware {
+	return func(next rabbitmq.IConsumer) rabbitmq.IConsumer {
+		return rabbitmq.ConsumerFunc(func(ctx context.Context, msg amqp.Delivery) {
+			span, newCtx := opentracing.StartSpanFromContext(ctx, "LOG_MESSAGE")
+			defer span.Finish()
+
+			span.LogFields(log.String("id", msg.MessageId))
+			span.LogFields(log.String("body", string(msg.Body)))
+
+			next.Consume(newCtx, msg)
+		})
+	}
+}

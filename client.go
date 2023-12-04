@@ -2,6 +2,8 @@ package rabbitmq
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"sync"
 	"time"
 
@@ -208,17 +210,13 @@ func (c *Client) consume(consumer AMQPConsumer) error {
 }
 
 func (c *Client) Publish(ctx context.Context, exchange, key string, mandatory, immediate bool, msg amqp.Publishing) error {
-	return c.publisherChan.PublishWithContext(ctx, exchange, key, mandatory, immediate, msg)
-}
-
-func (c *Client) PublishConfirm(ctx context.Context, exchange, key string, mandatory, immediate bool, msg amqp.Publishing) error {
 	defConfirm, err := c.publisherChan.PublishWithDeferredConfirmWithContext(ctx, exchange, key, mandatory, immediate, msg)
 	if err != nil {
 		return err
 	}
-	success := defConfirm.Wait()
+	success, err := defConfirm.WaitContext(ctx)
 	if !success {
-		return NewErrPublishNotAcked(exchange, key, msg)
+		return errors.Join(err, fmt.Errorf("failed publishing to: exchange: %s, key: %s", exchange, key))
 	}
 	return nil
 }
