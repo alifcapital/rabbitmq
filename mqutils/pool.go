@@ -2,6 +2,7 @@ package mqutils
 
 import (
 	"errors"
+	"strings"
 	"sync"
 
 	"github.com/alifcapital/rabbitmq"
@@ -30,7 +31,15 @@ func (p *Pool) Register(cfg rabbitmq.ClientConfig) (*rabbitmq.Client, error) {
 	if err != nil {
 		return nil, err
 	}
-	p.Set(cfg.DialConfig.AMQPConfig.Vhost, client)
+
+	var b strings.Builder
+	b.WriteString(cfg.DialConfig.AMQPConfig.Vhost)
+	b.WriteString(cfg.DialConfig.User)
+	b.WriteString(cfg.DialConfig.Port)
+	b.WriteString(cfg.DialConfig.Host)
+	clientName := b.String()
+
+	p.Set(clientName, client)
 	return client, nil
 }
 
