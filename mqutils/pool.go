@@ -22,7 +22,14 @@ func NewPool() *Pool {
 }
 
 func (p *Pool) Register(cfg rabbitmq.ClientConfig) (*rabbitmq.Client, error) {
-	client, exists := p.Get(cfg.DialConfig.AMQPConfig.Vhost)
+	var b strings.Builder
+	b.WriteString(cfg.DialConfig.AMQPConfig.Vhost)
+	b.WriteString(cfg.DialConfig.User)
+	b.WriteString(cfg.DialConfig.Port)
+	b.WriteString(cfg.DialConfig.Host)
+	clientName := b.String()
+
+	client, exists := p.Get(clientName)
 	if exists {
 		return client, nil
 	}
@@ -31,13 +38,6 @@ func (p *Pool) Register(cfg rabbitmq.ClientConfig) (*rabbitmq.Client, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	var b strings.Builder
-	b.WriteString(cfg.DialConfig.AMQPConfig.Vhost)
-	b.WriteString(cfg.DialConfig.User)
-	b.WriteString(cfg.DialConfig.Port)
-	b.WriteString(cfg.DialConfig.Host)
-	clientName := b.String()
 
 	p.Set(clientName, client)
 	return client, nil
